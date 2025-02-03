@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split
 from LogisticRegressor import LogisticRegressionScratch
 from SVM import SVMFromScratch
@@ -26,9 +26,9 @@ X = scaler.fit_transform(X)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 models = [
-    SVMFromScratch(learning_rate=0.001, lambda_param=0.01, epochs=450),
-    SVMFromScratch(learning_rate=0.0008, lambda_param=0.02, epochs=750),
-    SVMFromScratch(learning_rate=0.0015, lambda_param=0.005, epochs=250)
+    SVMFromScratch(learning_rate=0.001, lambda_param=0.01, epochs=300),
+    SVMFromScratch(learning_rate=0.0008, lambda_param=0.02, epochs=400),
+    SVMFromScratch(learning_rate=0.0015, lambda_param=0.005, epochs=200)
 ]
 
 train_meta_features = np.zeros((X_train.shape[0], len(models)))
@@ -44,13 +44,25 @@ for i, model in enumerate(models):
     model_accuracy = accuracy_score((y_test == i).astype(int), model_predictions)
     print(f"Model {i + 1} Accuracy: {model_accuracy:.4f}")
 
-meta_model = SVMFromScratch(learning_rate=0.001, lambda_param=0.01, epochs=200)
+meta_model = SVMFromScratch(learning_rate=0.001, lambda_param=0.01, epochs=100)
 meta_model.fit(train_meta_features, y_train)
 
 final_predictions = meta_model.predict(test_meta_features)
 
 accuracy = accuracy_score(y_test, final_predictions)
 print("Stacking Model Accuracy:", accuracy)
+
+conf_matrix = confusion_matrix(y_test, final_predictions)
+precision = precision_score(y_test, final_predictions, average='weighted')
+recall = recall_score(y_test, final_predictions, average='weighted')
+f1 = f1_score(y_test, final_predictions, average='weighted')
+
+print("\nConfusion Matrix:")
+print(conf_matrix)
+
+print("\nPrecision (Weighted):", precision)
+print("Recall (Weighted):", recall)
+print("F1-Score (Weighted):", f1)
 
 import pickle
 
