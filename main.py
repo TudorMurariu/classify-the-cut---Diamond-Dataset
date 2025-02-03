@@ -26,10 +26,9 @@ X = scaler.fit_transform(X)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 models = [
-    LogisticRegressionScratch(learning_rate=0.01, epochs=150),
-    SVMFromScratch(learning_rate=0.001, lambda_param=0.01, epochs=400),
-    SVMFromScratch(learning_rate=0.0008, lambda_param=0.02, epochs=700),
-    SVMFromScratch(learning_rate=0.0015, lambda_param=0.005, epochs=200)
+    SVMFromScratch(learning_rate=0.001, lambda_param=0.01, epochs=450),
+    SVMFromScratch(learning_rate=0.0008, lambda_param=0.02, epochs=750),
+    SVMFromScratch(learning_rate=0.0015, lambda_param=0.005, epochs=250)
 ]
 
 train_meta_features = np.zeros((X_train.shape[0], len(models)))
@@ -45,7 +44,7 @@ for i, model in enumerate(models):
     model_accuracy = accuracy_score((y_test == i).astype(int), model_predictions)
     print(f"Model {i + 1} Accuracy: {model_accuracy:.4f}")
 
-meta_model = SVMFromScratch(learning_rate=0.001, lambda_param=0.01, epochs=100)
+meta_model = SVMFromScratch(learning_rate=0.001, lambda_param=0.01, epochs=200)
 meta_model.fit(train_meta_features, y_train)
 
 final_predictions = meta_model.predict(test_meta_features)
@@ -55,11 +54,6 @@ print("Stacking Model Accuracy:", accuracy)
 
 import pickle
 
-# Save the entire stacking model (including base models) to a file
 with open('stacking_model.pkl', 'wb') as f:
-    pickle.dump(models, f)  # Save the base models
-    pickle.dump(meta_model, f)  # Save the meta model
-
-
-# import joblib
-# joblib.dump((models, meta_model), 'stacking_model.joblib')
+    pickle.dump(models, f)
+    pickle.dump(meta_model, f)
